@@ -1,15 +1,18 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import type { Request,  Response } from 'express';
+import type { Request, Response } from 'express';
 
 const prisma = new PrismaClient();
 
-export const getAllTasks = async (_req: Request, res: Response): Promise<void> => {
+export const getAllTasks = async (
+	_req: Request,
+	res: Response
+): Promise<void> => {
 	try {
 		const tasks = await prisma.task.findMany({
-         orderBy: {
-            taskId: 'asc'
-         }
-      });
+			orderBy: {
+				taskId: 'asc',
+			},
+		});
 		res.status(200).json(tasks);
 	} catch (error) {
 		if (error instanceof Error) {
@@ -19,13 +22,16 @@ export const getAllTasks = async (_req: Request, res: Response): Promise<void> =
 	}
 };
 
-export const getTaskById = async (req: Request, res: Response): Promise<void> => {
+export const getTaskById = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
 	try {
 		const { taskId } = req.params;
 		const existingTask = await prisma.task.findFirst({
 			where: {
-				taskId: Number(taskId)
-			}
+				taskId: Number(taskId),
+			},
 		});
 
 		if (!existingTask) {
@@ -42,7 +48,33 @@ export const getTaskById = async (req: Request, res: Response): Promise<void> =>
 	}
 };
 
-export const saveNewTask = async (req: Request, res: Response): Promise<void> => {
+export const getTasksByTaskListId = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	try {
+		const { taskListId } = req.params;
+		const tasks = await prisma.task.findMany({
+			where: {
+				taskListId: Number(taskListId),
+			},
+		});
+
+		res.status(200).json(tasks);
+	} catch (error) {
+		if (error instanceof Error) {
+			res.status(500).json({ error: error.message });
+			return;
+		}
+		
+		res.status(500).json({ error: 'Unexpected error' });
+	}
+};
+
+export const saveNewTask = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
 	try {
 		const { title, taskListId, description, dueDate } = req.body;
 		const newTask = await prisma.task.create({
@@ -62,7 +94,10 @@ export const saveNewTask = async (req: Request, res: Response): Promise<void> =>
 	}
 };
 
-export const updateTask = async (req: Request, res: Response): Promise<void> => {
+export const updateTask = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
 	try {
 		const { taskId } = req.params;
 		const { title, taskListId, description, dueDate, completedAt } = req.body;
@@ -84,20 +119,23 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
 		if (error instanceof Prisma.PrismaClientKnownRequestError) {
 			if (error.code === 'P2025') {
 				res.status(404).json({ error: 'Task not found' });
-            return;
+				return;
 			}
-		} 
-      
-      if (error instanceof Error) {
-			res.status(500).json({ error: error.message });
-         return;
 		}
 
-      res.status(500).json({ error: 'Unexpected error' });
+		if (error instanceof Error) {
+			res.status(500).json({ error: error.message });
+			return;
+		}
+
+		res.status(500).json({ error: 'Unexpected error' });
 	}
 };
 
-export const deleteById = async (req: Request, res: Response): Promise<void> => {
+export const deleteById = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
 	try {
 		const { taskId } = req.params;
 		await prisma.task.delete({
@@ -114,12 +152,12 @@ export const deleteById = async (req: Request, res: Response): Promise<void> => 
 				return;
 			}
 		}
-		
+
 		if (error instanceof Error) {
 			res.status(500).json({ error: error.message });
 			return;
 		}
-		
+
 		res.status(500).json({ error: 'Unexpected error' });
 	}
 };
