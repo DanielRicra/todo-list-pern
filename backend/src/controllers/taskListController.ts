@@ -14,6 +14,22 @@ export const getAllTaskLists = async (_req: Request, res: Response): Promise<voi
 	}
 };
 
+export const getTaskListsByUserId = async (req: Request, res: Response): Promise<void> => {
+	const { userId } = req.params; 
+	try {
+		const taskLists = await prisma.taskList.findMany({
+			where: {
+				userId: Number(userId)
+			}
+		});
+		res.status(200).json(taskLists);
+	} catch (error) {
+		if (error instanceof Error) {
+			res.status(500).json({ error: error.message });
+		}
+	}
+};
+
 export const saveNewTaskList = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const { name, userId } = req.body;

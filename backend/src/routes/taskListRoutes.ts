@@ -1,9 +1,11 @@
 import { Router } from 'express';
-import { deleteTaskListById, getAllTaskLists, saveNewTaskList, updateTaskList } from '../controllers/taskListController';
+import { deleteTaskListById, getAllTaskLists, getTaskListsByUserId, saveNewTaskList, updateTaskList } from '../controllers/taskListController';
 
 const taskListRoutes = Router();
 
 taskListRoutes.get('/', getAllTaskLists);
+
+taskListRoutes.get('/user/:userId', getTaskListsByUserId);
 
 taskListRoutes.post('/', saveNewTaskList);
 
