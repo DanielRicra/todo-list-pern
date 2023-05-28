@@ -1,4 +1,5 @@
 # Ignore artifacts:
 coverage
+dist
 
 package-lock.json
