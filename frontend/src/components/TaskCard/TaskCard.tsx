@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { TaskDTO } from '../types';
+import { TaskDTO } from '../../types';
 import TaskCardContent from './TaskCardContent';
 
 const TaskCard = ({ task }: { task: TaskDTO }) => {
@@ -14,7 +14,7 @@ const TaskCard = ({ task }: { task: TaskDTO }) => {
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (ref.current) {
-				if (!ref.current.contains(event.target as Node)) {
+				if (!ref.current.contains(event.target as HTMLElement)) {
 					setIsDropdownOpen(false);
 				}
 			}
