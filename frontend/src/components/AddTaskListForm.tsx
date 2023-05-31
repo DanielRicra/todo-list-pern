@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { useAppDispatch } from '../app/hooks';
 import type { TaskList } from '../types';
 import AddButton from './buttons/AddButton';
-import { addTaskList } from '../features/task-list/taskListSlice';
+import { saveTaskList } from '../features/task-list/taskListMiddleware';
 
 const AddTaskListForm = () => {
 	const dispatch = useAppDispatch();
@@ -28,7 +28,6 @@ const AddTaskListForm = () => {
 		const newTaskList: TaskList = {
 			name: inputRef.current?.value ?? 'New TaskList',
 			userId: 1,
-			taskListId: Math.round(Math.random() * 50000 + 50),
 		};
 
 		if (errorRef.current) {
@@ -39,7 +38,7 @@ const AddTaskListForm = () => {
 			inputRef.current.value = '';
 		}
 
-		dispatch(addTaskList(newTaskList));
+		dispatch(saveTaskList(newTaskList));
 	};
 
 	return (
