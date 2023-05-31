@@ -1,34 +1,34 @@
 export type Task = {
-	id: number;
+	taskId?: number;
 	title: string;
 	description?: string;
 	dueDate?: Date;
 	completedAt?: Date;
 	taskListId: number;
 	createdAt: Date;
-	updatedAt?: Date;
 };
 
 export type TaskDTO  = {
-	id: number;
+	taskId?: number;
 	title: string;
-	description?: string;
-	dueDate?: string;
-	completedAt?: string;
+	description: string | null;
+	dueDate: string | null;
+	completedAt: string | null;
 	taskListId: number;
 	createdAt: string;
-	updatedAt?: string;
 }
 
 export type TaskList = {
-	taskListId: number;
+	taskListId?: number;
 	name: string;
 	userId: number;
 }
 
 export type TaskListDTO = {
+	taskListId: number;
 	name: string;
 	userId: number;
+	tasks: TaskDTO[];
 }
 
 export type SVGIconProps = {
@@ -38,24 +38,23 @@ export type SVGIconProps = {
 	fill?: string;
 }
 
-export type SetTaskPayload = {
-	tasks: TaskDTO[];
-	taskListId: number;
-}
-
-export type	TaskProps = {
+export type TaskCardProps = {
 	task: TaskDTO;
+	isDropdownOpen: boolean;
+	toggleShowDropdown: () => void;
 }
 
 export interface TaskState {
-	value: TaskDTO[];
-	taskListId: number;
-	status: 'idle' | 'loading' | 'failed';
+	value: TaskListDTO;
+	status: 'idle' | 'pending' | 'rejected' | 'fulfilled';
+	error: string;
 }
 
 
 export interface TaskListState {
 	value: TaskList[];
-	status: 'idle' | 'loading' | 'failed';
+	currentTaskList: TaskListDTO;
+	status: 'idle' | 'pending' | 'rejected' | 'fulfilled';
+	error: string;
 }
 	
