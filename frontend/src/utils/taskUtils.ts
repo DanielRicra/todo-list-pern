@@ -2,26 +2,24 @@ import { Task, TaskDTO } from '../types';
 
 export const convertTaskDTOToTask = (taskDTO: TaskDTO): Task => {
 	return {
-		id: taskDTO.id,
+		taskId: taskDTO.taskId,
 		title: taskDTO.title,
-		description: taskDTO.description,
+		description: taskDTO.description ?? undefined,
 		dueDate: taskDTO.dueDate ? new Date(taskDTO.dueDate) : undefined,
 		completedAt: taskDTO.completedAt ? new Date(taskDTO.completedAt) : undefined,
 		taskListId: taskDTO.taskListId,
 		createdAt: new Date(taskDTO.createdAt),
-		updatedAt: taskDTO.updatedAt ? new Date(taskDTO.updatedAt) : undefined,
 	};
 };
 
 export const convertTaskToTaskDTO = (task: Task): TaskDTO => {
 	return {
-		id: task.id,
+		taskId: task.taskId,
 		title: task.title,
-		description: task.description,
-		dueDate: task.dueDate ? task.dueDate.toISOString() : undefined,
-		completedAt: task.completedAt ? task.completedAt.toISOString() : undefined,
+		description: task.description || null,
+		dueDate: task.dueDate ? task.dueDate.toISOString() : null,
+		completedAt: task.completedAt ? task.completedAt.toISOString() : null,
 		taskListId: task.taskListId,
 		createdAt: task.createdAt.toISOString(),
-		updatedAt: task.updatedAt ? task.updatedAt.toISOString() : undefined,
 	};
 };
