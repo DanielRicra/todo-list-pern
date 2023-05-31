@@ -1,12 +1,16 @@
-import { useEffect, useState, forwardRef } from 'react';
+import { useEffect, useState, forwardRef, useRef } from 'react';
 
-import CaretRight from './icons/CaretRight';
-import Dots from './icons/Dots';
-import { Task, TaskCardProps } from '../types';
-import { useAppDispatch } from '../app/hooks';
-import { updateTask } from '../features/task/taskMiddleware';
-import { convertTaskDTOToTask, convertTaskToTaskDTO } from '../utils/taskUtils';
+import CaretRight from '../icons/CaretRight';
+import Dots from '../icons/Dots';
+import { Task, TaskCardProps } from '../../types';
+import { useAppDispatch } from '../../app/hooks';
+import { updateTask } from '../../features/task/taskMiddleware';
+import {
+	convertTaskDTOToTask,
+	convertTaskToTaskDTO,
+} from '../../utils/taskUtils';
 import DropDownMenu from './DropDownMenu';
+import UpdateTaskModal from '../UpdateTaskModal';
 
 const TaskCardContent = forwardRef<HTMLDivElement, TaskCardProps>(
 	({ task, isDropdownOpen, toggleShowDropdown }, ref) => {
@@ -14,27 +18,35 @@ const TaskCardContent = forwardRef<HTMLDivElement, TaskCardProps>(
 		const [taskForm, setTaskForm] = useState<Task>(
 			convertTaskDTOToTask(task)
 		);
+		const modalRef = useRef<HTMLDialogElement>(null);
+
+		const openUpdateModal =() => {
+			modalRef.current?.showModal();
+		};
+
+		const closeUpdateModal = () => {
+			modalRef.current?.close();
+		};
 
 		const handleCompletedToggle = (
 			e: React.ChangeEvent<HTMLInputElement>
 		) => {
 			const completedAt = e.target.checked
 				? new Date().toISOString()
-				: undefined;
-			dispatch(
-				updateTask({ ...convertTaskToTaskDTO(taskForm), completedAt })
-			);
+				: null;
+				
+				const updatedTask = { ...convertTaskToTaskDTO(taskForm), completedAt };
+
+				dispatch(updateTask(updatedTask));
 		};
-		
+
 		useEffect(() => {
 			setTaskForm(convertTaskDTOToTask(task));
 		}, [task]);
 
 		return (
 			<>
-				<div
-					className="flex w-full hover:bg-[#252531] rounded-lg p-2 flex-col justify-start items-start relative"
-				>
+				<div className="flex w-full hover:bg-[#252531] rounded-lg p-2 flex-col justify-start items-start relative">
 					{task.description && (
 						<>
 							<input
@@ -75,35 +87,42 @@ const TaskCardContent = forwardRef<HTMLDivElement, TaskCardProps>(
 
 						<p className="flex-1">{taskForm.title}</p>
 
-						<div
-							ref={ref}
-							onClick={toggleShowDropdown}
-							style={{
-								borderColor: isDropdownOpen ? '#F84C6F' : '#454545',
-							}}
-							className="flex items-center cursor-pointer hover:border-[#F84C6F] border border-solid rounded-xl p-1"
-						>
-							<Dots fill="#f5f2f2" />
-						</div>
+						<div ref={ref}>
+							<div
+								onClick={toggleShowDropdown}
+								style={{
+									borderColor: isDropdownOpen ? '#F84C6F' : '#454545',
+								}}
+								className="flex items-center cursor-pointer hover:border-[#F84C6F] border border-solid rounded-xl p-1"
+							>
+								<Dots fill="#f5f2f2" />
+							</div>
 
-						{isDropdownOpen && <DropDownMenu />}
+							{isDropdownOpen && (
+								<DropDownMenu
+									toggleShowDropdown={toggleShowDropdown}
+									openUpdateModal={openUpdateModal}
+								/>
+							)}
+						</div>
 					</div>
+
 					{task.description && (
 						<p className="h-0 px-2 py-0 ml-7 overflow-hidden transition-all duration-200 ease-linear peer-checked/accordion:h-auto peer-checked/accordion:p-1 peer-checked/accordion:overflow-visible">
 							{task.description}
 						</p>
 					)}
+
 					{taskForm.dueDate && (
 						<span className="ml-7">
 							{taskForm.dueDate.toLocaleDateString()}
 						</span>
 					)}
-					{taskForm.updatedAt && (
-						<span className="ml-7">
-							{taskForm.updatedAt.toLocaleDateString()}
-						</span>
-					)}
 				</div>
+
+				<dialog ref={modalRef} className='p-0 bg-transparent backdrop:bg-[#25253127]'>
+					<UpdateTaskModal task={task} closeUpdateModal={closeUpdateModal} />
+				</dialog>
 			</>
 		);
 	}
