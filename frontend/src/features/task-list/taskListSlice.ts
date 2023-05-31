@@ -1,28 +1,68 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { TaskList, TaskListState } from '../../types';
+import type { TaskList, TaskListDTO, TaskListState } from '../../types';
+import { fetchTaskListById, fetchTaskListsByUserId, saveTaskList } from './taskListMiddleware';
 
 const initialState: TaskListState = {
 	value: [],
+	currentTaskList: {
+		taskListId: 0,
+		name: '',
+		userId: 0,
+		tasks: [],
+	},
 	status: 'idle',
+	error: '',
 };
-// TODO: make the middleware thunks function, and the services to connect to API
+
 const taskListSlice = createSlice({
 	name: 'taskList',
 	initialState,
 	reducers: {
-		setTaskLists: (state, action: PayloadAction<TaskList[]>) => {
-			state.value = action.payload;
+		removeTaskList: (state, action: PayloadAction<number>) => {
+			state.value = state.value.filter(
+				(taskList) => taskList.taskListId !== action.payload
+			);
 		},
-      addTaskList: (state, action: PayloadAction<TaskList>) => {
-         state.value.push(action.payload);
-      },
-      removeTaskList: (state, action: PayloadAction<number>) => {
-         state.value = state.value.filter(taskList => taskList.taskListId !== action.payload);
-      }
+	},
+	extraReducers: (builder) => {
+		builder
+			.addCase(fetchTaskListsByUserId.pending, (state) => {
+				state.status = 'pending';
+			})
+			.addCase(fetchTaskListsByUserId.fulfilled, (state, action: PayloadAction<TaskList[]>) => {
+				state.status = 'fulfilled';
+				state.value = action.payload;
+			})
+			.addCase(fetchTaskListsByUserId.rejected, (state) => {
+				state.status = 'rejected';
+			})
+			.addCase(saveTaskList.pending, (state) => {
+				state.status = 'pending';
+			})
+			.addCase(saveTaskList.fulfilled, (state, action: PayloadAction<TaskList>) => {
+				state.status = 'fulfilled';
+				state.value.push(action.payload);
+			})
+			.addCase(saveTaskList.rejected, (state) => {
+				state.status = 'rejected';
+			})
+			.addCase(fetchTaskListById.pending, (state) => {
+				state.status = 'pending';
+			})
+			.addCase(fetchTaskListById.fulfilled, (state, action: PayloadAction<TaskListDTO>) => {
+				state.status = 'fulfilled';
+				state.currentTaskList = action.payload;
+			})
+			.addCase(fetchTaskListById.rejected, (state, action) => {
+				state.status = 'rejected';
+				state.error = action.error.message || 'Something went wrong';
+			});
 	},
 });
 
-export const { setTaskLists, addTaskList, removeTaskList } = taskListSlice.actions;
+export const { removeTaskList } =
+	taskListSlice.actions;
 export default taskListSlice.reducer;
 
-export const selectTaskLists = (state: { taskList: TaskListState}) => state.taskList.value;
+export const selectTaskLists = (state: { taskList: TaskListState }) =>
+	state.taskList.value;
