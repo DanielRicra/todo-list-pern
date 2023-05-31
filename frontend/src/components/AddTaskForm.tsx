@@ -1,10 +1,10 @@
 import { useRef } from 'react';
-import { saveNewTask, selectTaskListId } from '../features/task/tasksSlice';
 import { TaskDTO } from '../types';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { saveTask } from '../features/task/taskMiddleware';
 
 const AddTaskForm = () => {
-	const taskListId = useAppSelector(selectTaskListId);
+	const taskListId = useAppSelector((state) => state.tasks.value.taskListId);
 	const errorRef = useRef<HTMLParagraphElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const dispatch = useAppDispatch();
@@ -25,10 +25,12 @@ const AddTaskForm = () => {
 		}
 
 		const newTask: TaskDTO = {
-			id: Math.floor(Math.random() * 10000) + 100,
 			title: inputRef.current?.value.trim() || 'Add title',
 			createdAt: new Date().toISOString(),
 			taskListId: taskListId,
+			dueDate: null,
+			completedAt: null,
+			description: null,
 		};
 
 		if (errorRef.current) {
@@ -38,7 +40,7 @@ const AddTaskForm = () => {
 		if (inputRef.current) {
 			inputRef.current.value = '';
 		}
-		dispatch(saveNewTask(newTask));
+		dispatch(saveTask(newTask));
 	};
 
 	return (
