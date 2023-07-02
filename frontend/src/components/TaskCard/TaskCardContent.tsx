@@ -1,4 +1,5 @@
 import { useEffect, useState, forwardRef, useRef } from 'react';
+import formatDistance from 'date-fns/formatDistance';
 
 import CaretRight from '../icons/CaretRight';
 import Dots from '../icons/Dots';
@@ -20,7 +21,7 @@ const TaskCardContent = forwardRef<HTMLDivElement, TaskCardProps>(
 		);
 		const modalRef = useRef<HTMLDialogElement>(null);
 
-		const openUpdateModal =() => {
+		const openUpdateModal = () => {
 			modalRef.current?.showModal();
 		};
 
@@ -31,13 +32,11 @@ const TaskCardContent = forwardRef<HTMLDivElement, TaskCardProps>(
 		const handleCompletedToggle = (
 			e: React.ChangeEvent<HTMLInputElement>
 		) => {
-			const completedAt = e.target.checked
-				? new Date().toISOString()
-				: null;
-				
-				const updatedTask = { ...convertTaskToTaskDTO(taskForm), completedAt };
+			const completedAt = e.target.checked ? new Date().toISOString() : null;
 
-				dispatch(updateTask(updatedTask));
+			const updatedTask = { ...convertTaskToTaskDTO(taskForm), completedAt };
+
+			dispatch(updateTask(updatedTask));
 		};
 
 		useEffect(() => {
@@ -115,13 +114,19 @@ const TaskCardContent = forwardRef<HTMLDivElement, TaskCardProps>(
 
 					{taskForm.dueDate && (
 						<span className="ml-7">
-							{taskForm.dueDate.toLocaleDateString()}
+							Due in {formatDistance(new Date(taskForm.dueDate), new Date())}
 						</span>
 					)}
 				</div>
 
-				<dialog ref={modalRef} className='p-0 bg-transparent backdrop:bg-[#25253127]'>
-					<UpdateTaskModal task={task} closeUpdateModal={closeUpdateModal} />
+				<dialog
+					ref={modalRef}
+					className="p-0 bg-transparent backdrop:bg-[#25253127]"
+				>
+					<UpdateTaskModal
+						task={task}
+						closeUpdateModal={closeUpdateModal}
+					/>
 				</dialog>
 			</>
 		);
