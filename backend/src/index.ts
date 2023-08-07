@@ -1,24 +1,10 @@
-import express from 'express';
-import taskRoutes from './routes/taskRoutes';
-import taskListRoutes from './routes/taskListRoutes';
-import cors from 'cors';
-import morgan from 'morgan';
+import 'dotenv/config';
 
-const app = express();
-
-app.use(express.json());
-app.use(cors());
-app.use(morgan('dev'));
-
-app.use('/api/v1/task', taskRoutes);
-app.use('/api/v1/taskList', taskListRoutes);
-
-app.get('/', (_, res) => {
-	res.send('API is too ready');
-});
+import app from './app';
 
 const port = process.env.PORT ?? 3001;
+const DEPLOY_URL = process.env.DEPLOY_URL ?? `http://localhost:${port}`;
 
 app.listen(port, () => {
-	console.log(`Server is running on port http://localhost:${port}`);
+	console.log(`Server is running on port ${DEPLOY_URL}`);
 });
