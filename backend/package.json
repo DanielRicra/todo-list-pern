@@ -7,8 +7,11 @@
     "dev": "nodemon src/index.ts",
     "start": "node dist/index.js",
     "build": "tsc",
+    "test": "vitest",
     "format": "prettier --write .",
-    "lint": "eslint --fix . --ext .js"
+    "lint": "eslint --fix . --ext .js",
+    "test:unit": "vitest -c ./vitest.config.unit.ts",
+    "test:unit:ui": "vitest -c ./vitest.config.unit.ts --ui"
   },
   "keywords": [
     "Express.Js",
@@ -21,7 +24,9 @@
     "@types/express": "4.17.17",
     "@types/morgan": "1.9.4",
     "@types/node": "20.2.3",
+    "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "5.59.5",
+    "@vitest/ui": "^0.34.1",
     "eslint": "8.40.0",
     "eslint-config-prettier": "8.8.0",
     "eslint-config-standard-with-typescript": "34.0.1",
@@ -32,11 +37,15 @@
     "nodemon": "2.0.22",
     "prettier": "2.8.8",
     "prisma": "4.14.1",
+    "supertest": "^6.3.3",
     "ts-node": "^10.9.1",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "vitest": "^0.34.1",
+    "vitest-mock-extended": "^1.2.0"
   },
   "dependencies": {
     "@prisma/client": "4.14.1",
+    "@types/jsonwebtoken": "^9.0.2",
     "bcrypt": "^5.1.0",
     "cors": "2.8.5",
     "dotenv": "16.0.3",
