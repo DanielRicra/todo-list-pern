@@ -5,7 +5,9 @@ import 'dotenv/config';
 
 import taskRoutes from './routes/taskRoutes';
 import taskListRoutes from './routes/taskListRoutes';
+import userRoutes from './routes/userRouter';
 import { errorHandler } from './middleware/errorHandler';
+import authRoutes from './routes/authRoutes';
 
 const port = process.env.PORT ?? 3001;
 const CLIENT_ORIGIN_URL = process.env.CLIENT_ORIGIN_URL;
@@ -26,6 +28,8 @@ app.use(morgan('dev'));
 
 app.use('/api/v1/task', taskRoutes);
 app.use('/api/v1/taskList', taskListRoutes);
+app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/auth', authRoutes);
 
 app.get('/', async (_, res, next) => {
 	res.status(200).json({
