@@ -41,7 +41,7 @@ model RefreshToken {
    refreshTokenId Int      @id @default(autoincrement())
    token          String   @unique
    userId         Int      @unique
-   user           User     @relation(fields: [userId], references: [userId])
+   user           User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
    createdAt      DateTime @default(now())
 }
 
