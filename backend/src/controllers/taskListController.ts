@@ -1,8 +1,8 @@
-import { Prisma, PrismaClient } from '@prisma/client';
 import type { Request, Response } from 'express';
-import { HTTP_STATUS } from '../utils/constants';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
-const prisma = new PrismaClient();
+import { HTTP_STATUS } from '../utils/constants';
+import prisma from '../libs/prisma';
 
 export const getAllTaskLists = async (
 	_req: Request,
@@ -134,7 +134,7 @@ export const updateTaskList = async (
 		});
 		res.status(HTTP_STATUS.OK).json(updatedTask);
 	} catch (error) {
-		if (error instanceof Prisma.PrismaClientKnownRequestError) {
+		if (error instanceof PrismaClientKnownRequestError) {
 			if (error.code === 'P2025') {
 				res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'TaskList not found' });
 				return;

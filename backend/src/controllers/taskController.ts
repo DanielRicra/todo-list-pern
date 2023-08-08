@@ -1,7 +1,7 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import type { Request, Response } from 'express';
 
-const prisma = new PrismaClient();
+import prisma from '../libs/prisma';
 
 export const getAllTasks = async (
 	_req: Request,
@@ -66,7 +66,7 @@ export const getTasksByTaskListId = async (
 			res.status(500).json({ error: error.message });
 			return;
 		}
-		
+
 		res.status(500).json({ error: 'Unexpected error' });
 	}
 };
@@ -116,7 +116,7 @@ export const updateTask = async (
 		});
 		res.status(200).json(updatedTask);
 	} catch (error) {
-		if (error instanceof Prisma.PrismaClientKnownRequestError) {
+		if (error instanceof PrismaClientKnownRequestError) {
 			if (error.code === 'P2025') {
 				res.status(404).json({ error: 'Task not found' });
 				return;
@@ -146,7 +146,7 @@ export const deleteById = async (
 
 		res.status(200).json({ message: 'Task deleted' });
 	} catch (error) {
-		if (error instanceof Prisma.PrismaClientKnownRequestError) {
+		if (error instanceof PrismaClientKnownRequestError) {
 			if (error.code === 'P2025') {
 				res.status(404).json({ error: 'Task not found' });
 				return;
