@@ -10,8 +10,15 @@ interface RefreshTokenDTO {
 export const createRefreshToken = async (
 	refreshToken: RefreshTokenDTO
 ): Promise<RefreshToken> => {
-	return await prisma.refreshToken.create({
-		data: refreshToken,
+	return await prisma.refreshToken.upsert({
+		where: {
+			userId: refreshToken.userId,
+		},
+		update: { token: refreshToken.token },
+		create: {
+			token: refreshToken.token,
+			userId: refreshToken.userId,
+		},
 	});
 };
 
