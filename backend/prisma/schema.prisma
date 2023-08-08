@@ -31,6 +31,8 @@ model User {
    email        String        @unique @db.VarChar(120)
    password     String        @db.Char(60)
    name         String
+   banned       Boolean?      @default(false)
+   roles        Role[]
    taskLists    TaskList[]
    refreshToken RefreshToken?
 }
@@ -41,4 +43,10 @@ model RefreshToken {
    userId         Int      @unique
    user           User     @relation(fields: [userId], references: [userId])
    createdAt      DateTime @default(now())
+}
+
+model Role {
+   id    String @id @default(uuid())
+   name  String @unique
+   users User[]
 }
