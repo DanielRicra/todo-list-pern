@@ -7,12 +7,7 @@ import { HTTP_STATUS } from '../utils/constants';
 import prisma from '../libs/prisma';
 import { isEmailValid } from '../utils/validateData';
 import { createRefreshToken } from '../service/refreshTokenService';
-
-interface UserForAccessToken {
-	userId: number;
-	email: string;
-	name: string;
-}
+import { type UserForAccessToken } from '../types';
 
 export const login = async (
 	req: Request,
