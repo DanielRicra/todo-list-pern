@@ -1,4 +1,5 @@
 import { Router } from 'express';
+
 import {
 	deleteById,
 	getAllTasks,
@@ -7,19 +8,20 @@ import {
 	saveNewTask,
 	updateTask,
 } from '../controllers/taskController';
+import { verifyAdmin, verifyToken } from '../middleware/authJWT';
 
 const taskRoutes = Router();
 
-taskRoutes.get('/', getAllTasks);
+taskRoutes.get('/', [verifyToken, verifyAdmin], getAllTasks);
 
-taskRoutes.get('/:taskId', getTaskById);
+taskRoutes.get('/:taskId', verifyToken, getTaskById);
 
-taskRoutes.get('/taskList/:taskListId', getTasksByTaskListId);
+taskRoutes.get('/taskList/:taskListId', verifyToken, getTasksByTaskListId);
 
-taskRoutes.post('/', saveNewTask);
+taskRoutes.post('/', verifyToken, saveNewTask);
 
-taskRoutes.put('/:taskId', updateTask);
+taskRoutes.put('/:taskId', verifyToken, updateTask);
 
-taskRoutes.delete('/:taskId', deleteById);
+taskRoutes.delete('/:taskId', verifyToken, deleteById);
 
 export default taskRoutes;
