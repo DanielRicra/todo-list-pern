@@ -1,12 +1,16 @@
 import type { NextFunction, Request, Response } from 'express';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import jwt from 'jsonwebtoken';
+import jwt, { JsonWebTokenError } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 import { HTTP_STATUS } from '../utils/constants';
 import prisma from '../libs/prisma';
 import { isEmailValid } from '../utils/validateData';
-import { createRefreshToken } from '../service/refreshTokenService';
+import {
+	createRefreshToken,
+	deleteRefreshTokenByToken,
+	findRefreshTokenByToken,
+} from '../service/refreshTokenService';
 import { type UserForAccessToken } from '../types';
 
 export const login = async (
@@ -42,8 +46,8 @@ export const login = async (
 			name: existingUser.name,
 		};
 
-		const accessToken = generateJWT(user, '180s');
-		const token = generateJWT(user);
+		const accessToken = generateJWT(user, process.env.ACCESS_TOKEN_SECRET!,'180s');
+		const token = generateJWT(user, process.env.REFRESH_TOKEN_SECRET!);
 
 		const refreshToken = await createRefreshToken({
 			token,
@@ -100,8 +104,8 @@ export const signUp = async (
 			userId: newUser.userId,
 		};
 
-		const accessToken = generateJWT(user, '180s');
-		const token = generateJWT(user);
+		const accessToken = generateJWT(user, process.env.ACCESS_TOKEN_SECRET!, '180s');
+		const token = generateJWT(user, process.env.REFRESH_TOKEN_SECRET!);
 
 		const refreshToken = await createRefreshToken({
 			token,
@@ -123,10 +127,87 @@ export const signUp = async (
 	}
 };
 
-function generateJWT(user: UserForAccessToken, expiresIn?: string): string {
+export const revalidateAccessToken = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+): Promise<void> => {
+	const token = req.body.token;
+
+	if (!token) {
+		res.status(HTTP_STATUS.BAD_REQUEST).json({ error: 'Missing token' });
+		return;
+	}
+
+	try {
+		const existingRefreshToken = await findRefreshTokenByToken(token);
+
+		const decodedToken = jwt.verify(
+			existingRefreshToken.token,
+			process.env.REFRESH_TOKEN_SECRET!
+		) as UserForAccessToken;
+
+		const user: UserForAccessToken = {
+			email: decodedToken.email,
+			name: decodedToken.name,
+			userId: decodedToken.userId,
+		};
+		const accessToken = generateJWT(user, process.env.ACCESS_TOKEN_SECRET!,'180s');
+
+		res.status(200).json({ accessToken });
+	} catch (error) {
+		if (error instanceof JsonWebTokenError) {
+			res
+				.status(HTTP_STATUS.UNAUTHORIZED)
+				.json({ error: 'Unauthorized, invalid signature' });
+			return;
+		}
+		if (error instanceof PrismaClientKnownRequestError) {
+			if (error.code === 'P2025') {
+				res
+					.status(HTTP_STATUS.NOT_FOUND)
+					.json({ error: 'Refresh Token not found' });
+				return;
+			}
+		}
+		next(error);
+	}
+};
+
+export const logout = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+): Promise<void> => {
+	const token = req.headers.authorization?.split(' ')[1];
+
+	if (!token) {
+		res.status(HTTP_STATUS.BAD_REQUEST).json({ error: 'Missing token' });
+		return;
+	}
+
+	try {
+		await deleteRefreshTokenByToken(token);
+
+		res.sendStatus(204);
+	} catch (error) {
+		if (error instanceof PrismaClientKnownRequestError) {
+			if (error.code === 'P2025') {
+				res
+					.status(HTTP_STATUS.NOT_FOUND)
+					.json({ error: 'Refresh Token not found' });
+				return;
+			}
+		}
+
+		next(error);
+	}
+};
+
+function generateJWT(user: UserForAccessToken, secret: string, expiresIn?: string): string {
 	return jwt.sign(
 		user,
-		process.env.ACCESS_TOKEN_SECRET as string,
+		secret,
 		expiresIn ? { expiresIn } : undefined
 	);
 }
