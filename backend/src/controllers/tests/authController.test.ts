@@ -69,4 +69,37 @@ describe('/auth', async () => {
 			expect(body.error).toBe('User not found');
 		});
 	});
+
+	describe('POST /auth/token', () => {
+		test('should return a 200 on successful token refresh', async () => {
+			const { body: userTokens } = await api.post('/api/v1/auth/login').send({
+				email: 'demo@demo.com',
+				password: '1234',
+			});
+
+			const { status, body } = await api
+				.post('/api/v1/auth/token')
+				.send({ token: userTokens.refreshToken });
+
+			expect(status).toBe(200);
+			expect(body).toStrictEqual({ accessToken: expect.any(String) });
+			expect(body.accessToken).not.toBe(userTokens.accessToken);
+		});
+
+		test('should return a 404 on not found token', async () => {
+			const { status, body } = await api
+				.post('/api/v1/auth/token')
+				.send({ token: 'fakeToken' });
+
+			expect(status).toBe(404);
+			expect(body.error).toBe('Refresh Token not found');
+		});
+
+		test('should return a 400 on missing token', async () => {
+			const { status, body } = await api.post('/api/v1/auth/token');
+
+			expect(status).toBe(400);
+			expect(body.error).toBe('Missing token');
+		});
+	});
 });
