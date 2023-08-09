@@ -1,11 +1,12 @@
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
-import type { Request, Response } from 'express';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import type { NextFunction, Request, Response } from 'express';
 
 import prisma from '../libs/prisma';
 
 export const getAllTasks = async (
 	_req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ): Promise<void> => {
 	try {
 		const tasks = await prisma.task.findMany({
@@ -15,16 +16,14 @@ export const getAllTasks = async (
 		});
 		res.status(200).json(tasks);
 	} catch (error) {
-		if (error instanceof Error) {
-			res.status(500).json({ error: error.message });
-		}
-		console.log('Unexpected error: ', error);
+		next(error);
 	}
 };
 
 export const getTaskById = async (
 	req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ): Promise<void> => {
 	try {
 		const { taskId } = req.params;
@@ -41,16 +40,14 @@ export const getTaskById = async (
 
 		res.status(200).json(existingTask);
 	} catch (error) {
-		if (error instanceof Error) {
-			res.status(500).json({ error: error.message });
-		}
-		console.log('Unexpected error: ', error);
+		next(error);
 	}
 };
 
 export const getTasksByTaskListId = async (
 	req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ): Promise<void> => {
 	try {
 		const { taskListId } = req.params;
@@ -62,18 +59,14 @@ export const getTasksByTaskListId = async (
 
 		res.status(200).json(tasks);
 	} catch (error) {
-		if (error instanceof Error) {
-			res.status(500).json({ error: error.message });
-			return;
-		}
-
-		res.status(500).json({ error: 'Unexpected error' });
+		next(error);
 	}
 };
 
 export const saveNewTask = async (
 	req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ): Promise<void> => {
 	try {
 		const { title, taskListId, description, dueDate } = req.body;
@@ -87,16 +80,14 @@ export const saveNewTask = async (
 		});
 		res.status(201).json(newTask);
 	} catch (error) {
-		if (error instanceof Error) {
-			res.status(500).json({ error: error.message });
-		}
-		console.log('Unexpected error: ', error);
+		next(error);
 	}
 };
 
 export const updateTask = async (
 	req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ): Promise<void> => {
 	try {
 		const { taskId } = req.params;
@@ -123,18 +114,14 @@ export const updateTask = async (
 			}
 		}
 
-		if (error instanceof Error) {
-			res.status(500).json({ error: error.message });
-			return;
-		}
-
-		res.status(500).json({ error: 'Unexpected error' });
+		next(error);
 	}
 };
 
 export const deleteById = async (
 	req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ): Promise<void> => {
 	try {
 		const { taskId } = req.params;
@@ -153,11 +140,6 @@ export const deleteById = async (
 			}
 		}
 
-		if (error instanceof Error) {
-			res.status(500).json({ error: error.message });
-			return;
-		}
-
-		res.status(500).json({ error: 'Unexpected error' });
+		next(error);
 	}
 };
