@@ -24,8 +24,8 @@ export const createRefreshToken = async (
 
 export const findRefreshTokenByToken = async (
 	token: string
-): Promise<RefreshToken | null> => {
-	return await prisma.refreshToken.findFirst({
+): Promise<RefreshToken> => {
+	return await prisma.refreshToken.findUniqueOrThrow({
 		where: {
 			token,
 		},
