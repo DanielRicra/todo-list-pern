@@ -1,18 +1,26 @@
 import { Router } from 'express';
-import { deleteTaskListById, getAllTaskLists, getTaskListById, getTaskListsByUserId, saveNewTaskList, updateTaskList } from '../controllers/taskListController';
+import {
+	deleteTaskListById,
+	getAllTaskLists,
+	getTaskListById,
+	getTaskListsByUserId,
+	saveNewTaskList,
+	updateTaskList,
+} from '../controllers/taskListController';
+import { verifyAdmin, verifyToken } from '../middleware/authJWT';
 
 const taskListRoutes = Router();
 
-taskListRoutes.get('/', getAllTaskLists);
+taskListRoutes.get('/', [verifyToken, verifyAdmin], getAllTaskLists);
 
-taskListRoutes.get('/:taskListId', getTaskListById);
+taskListRoutes.get('/:taskListId', verifyToken, getTaskListById);
 
-taskListRoutes.get('/user/:userId', getTaskListsByUserId);
+taskListRoutes.get('/user/:userId', verifyToken, getTaskListsByUserId);
 
-taskListRoutes.post('/', saveNewTaskList);
+taskListRoutes.post('/', verifyToken, saveNewTaskList);
 
-taskListRoutes.delete('/:taskListId', deleteTaskListById);
+taskListRoutes.delete('/:taskListId', verifyToken, deleteTaskListById);
 
-taskListRoutes.put('/:taskListId', updateTaskList);
+taskListRoutes.put('/:taskListId', verifyToken, updateTaskList);
 
 export default taskListRoutes;
