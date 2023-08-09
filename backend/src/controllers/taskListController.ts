@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 import { HTTP_STATUS } from '../utils/constants';
@@ -6,21 +6,21 @@ import prisma from '../libs/prisma';
 
 export const getAllTaskLists = async (
 	_req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ): Promise<void> => {
 	try {
 		const taskLists = await prisma.taskList.findMany();
 		res.status(200).json(taskLists);
 	} catch (error) {
-		if (error instanceof Error) {
-			res.status(500).json({ error: error.message });
-		}
+		next(error);
 	}
 };
 
 export const getTaskListById = async (
 	req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ): Promise<void> => {
 	const { taskListId } = req.params;
 	try {
@@ -40,19 +40,14 @@ export const getTaskListById = async (
 
 		res.status(HTTP_STATUS.OK).json(taskList);
 	} catch (error) {
-		if (error instanceof Error) {
-			res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: error.message });
-			return;
-		}
-		res
-			.status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-			.json({ error: 'Something went wrong' });
+		next(error);
 	}
 };
 
 export const getTaskListsByUserId = async (
 	req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ): Promise<void> => {
 	const { userId } = req.params;
 	try {
@@ -63,15 +58,14 @@ export const getTaskListsByUserId = async (
 		});
 		res.status(HTTP_STATUS.OK).json(taskLists);
 	} catch (error) {
-		if (error instanceof Error) {
-			res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: error.message });
-		}
+		next(error);
 	}
 };
 
 export const saveNewTaskList = async (
 	req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ): Promise<void> => {
 	try {
 		const { name, userId } = req.body;
@@ -85,19 +79,14 @@ export const saveNewTaskList = async (
 
 		res.status(HTTP_STATUS.CREATED).json(taskList);
 	} catch (error) {
-		if (error instanceof Error) {
-			res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: error.message });
-			return;
-		}
-		res
-			.status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-			.json({ error: 'Something went wrong' });
+		next(error);
 	}
 };
 
 export const deleteTaskListById = async (
 	req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ): Promise<void> => {
 	try {
 		const { taskListId } = req.params;
@@ -110,15 +99,14 @@ export const deleteTaskListById = async (
 
 		res.status(200).json({ message: 'Task list deleted' });
 	} catch (error) {
-		if (error instanceof Error) {
-			res.status(500).json({ error: error.message });
-		}
+		next(error);
 	}
 };
 
 export const updateTaskList = async (
 	req: Request,
-	res: Response
+	res: Response,
+	next: NextFunction
 ): Promise<void> => {
 	try {
 		const { taskListId } = req.params;
@@ -141,13 +129,6 @@ export const updateTaskList = async (
 			}
 		}
 
-		if (error instanceof Error) {
-			res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: error.message });
-			return;
-		}
-
-		res
-			.status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-			.json({ error: 'Unexpected error' });
+		next(error);
 	}
 };
