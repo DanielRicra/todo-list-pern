@@ -37,7 +37,7 @@ describe('RefreshToken service', () => {
 				createdAt: new Date('2023-08-07T14:11:33.262Z'),
 				refreshTokenId: 1,
 			};
-			prisma.refreshToken.findFirst.mockResolvedValue(mockRefreshToken);
+			prisma.refreshToken.findUniqueOrThrow.mockResolvedValue(mockRefreshToken);
 
 			const refreshToken = await findRefreshTokenByToken('a token');
 
@@ -45,12 +45,12 @@ describe('RefreshToken service', () => {
 			expect(refreshToken?.token).equals(mockRefreshToken.token);
 		});
 
-		test('findRefreshTokenByToken should return null if it does not exist', async () => {
-			prisma.refreshToken.findFirst.mockResolvedValue(null);
+		test('findRefreshTokenByToken should throw if refresh token doesn\'t exist', async () => {
+			prisma.refreshToken.findUniqueOrThrow.mockImplementation(() => {
+				throw new Error('Not found');
+			});
 
-			const refreshToken = await findRefreshTokenByToken('a token');
-
-			expect(refreshToken).toBeNull();
+			expect(findRefreshTokenByToken('a token')).rejects.toThrow();
 		});
 	});
 
