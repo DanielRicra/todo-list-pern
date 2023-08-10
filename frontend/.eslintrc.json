@@ -12,6 +12,7 @@
 	"rules": {
 		"react-refresh/only-export-components": "warn",
 		"semi": ["error", "always"],
-		"quotes": ["error", "single"]
+		"quotes": ["error", "single"],
+		"react-hooks/exhaustive-deps": "off"
 	}
 }
