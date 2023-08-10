@@ -1,4 +1,5 @@
 import { TaskDTO } from '../types';
+import { validateHttpStatusOrThrow } from '../utils/validate';
 
 const BASE_URL = 'http://localhost:3001/api/v1';
 
@@ -8,6 +9,7 @@ const getTasksByTaskListId = async (taskListId: number) => {
 		const data = await response.json();
 
 		if (!response.ok) {
+			validateHttpStatusOrThrow(response.status, 401, 'Must be logged');
 			throw new Error(data.error);
 		}
 		
@@ -32,6 +34,7 @@ const updateTask = async (task: TaskDTO) => {
 		const data = await response.json();
 
 		if (!response.ok) {
+			validateHttpStatusOrThrow(response.status, 401, 'Must be logged');
 			throw new Error(data.error);
 		}
 
@@ -56,6 +59,7 @@ const saveTask = async (task: TaskDTO) => {
 		const data = await response.json();
 
 		if (!response.ok) {
+			validateHttpStatusOrThrow(response.status, 401, 'Must be logged');
 			throw new Error(data.error);
 		}
 
