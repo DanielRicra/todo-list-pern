@@ -4,7 +4,7 @@ import Eye from './icons/Eye';
 import EyeClosed from './icons/EyeClosed';
 import { useAppSelector } from '../app/hooks';
 import AddTaskForm from './add-task-form';
-import TaskCard from './task-card/TaskCard';
+import TaskCard from './task-card/task-card';
 
 export const TodoList = () => {
 	const [showCompleted, setShowCompleted] = useState(false);

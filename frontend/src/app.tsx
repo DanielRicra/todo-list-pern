@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 
 import './App.css';
 import { useAppDispatch } from './app/hooks';
-import NavBar from './components/NavBar';
-import SideBar from './components/SideBar';
-import TodoList from './components/TodoList';
+import NavBar from './components/nav-bar';
+import SideBar from './components/side-bar';
+import TodoList from './components/todo-list';
 import { fetchTaskListsByUserId } from './features/task-list/taskListMiddleware';
 
 function App() {
