@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../app/hooks';
-import AddTaskListForm from './AddTaskListForm';
+import AddTaskListForm from './add-task-list-form';
 import { fetchTasksByTaskListId } from '../features/task/taskMiddleware';
 
 const skeletons = [true, true, true];
@@ -40,7 +40,9 @@ const SideBar = () => {
 						<span className="h-9 w-full block rounded-md bg-gray-600 animate-pulse" />
 					</p>
 				))}
-			{status === 'rejected' && <p className="py-2 px-4 text-red-500">{error}</p>}
+			{status === 'rejected' && (
+				<p className="py-2 px-4 text-red-500">{error}</p>
+			)}
 			{status === 'fulfilled' &&
 				taskLists.map((taskList) => (
 					<div
