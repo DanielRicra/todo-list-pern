@@ -33,8 +33,9 @@ const taskListSlice = createSlice({
 				state.status = 'fulfilled';
 				state.value = action.payload;
 			})
-			.addCase(fetchTaskListsByUserId.rejected, (state) => {
+			.addCase(fetchTaskListsByUserId.rejected, (state, action) => {
 				state.status = 'rejected';
+				state.error = action.payload as string;
 			})
 			.addCase(saveTaskList.pending, (state) => {
 				state.status = 'pending';
@@ -55,7 +56,7 @@ const taskListSlice = createSlice({
 			})
 			.addCase(fetchTaskListById.rejected, (state, action) => {
 				state.status = 'rejected';
-				state.error = action.error.message || 'Something went wrong';
+				state.error = action.payload as string;
 			});
 	},
 });

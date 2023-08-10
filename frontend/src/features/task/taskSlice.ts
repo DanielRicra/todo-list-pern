@@ -32,7 +32,7 @@ const tasksSlice = createSlice({
 			)
 			.addCase(fetchTasksByTaskListId.rejected, (state, action) => {
 				state.status = 'rejected';
-				state.error = action.error.message || 'Something went wrong';
+				state.error = action.payload as string;
 			})
 			.addCase(
 				saveTask.fulfilled,
