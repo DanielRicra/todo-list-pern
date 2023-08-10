@@ -17,7 +17,7 @@ export const verifyToken = (
 	const token = req.headers.authorization?.split(' ')[1];
 
 	if (!token) {
-		res.status(HTTP_STATUS.BAD_REQUEST).json({ error: 'No token was provided' });
+		res.status(HTTP_STATUS.UNAUTHORIZED).json({ error: 'No token was provided' });
 		return;
 	}
 
