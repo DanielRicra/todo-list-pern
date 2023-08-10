@@ -63,7 +63,7 @@ export const TodoList = () => {
 						<div className="animate-pulse text-2xl">Loading</div>
 					)}
 					{status === 'rejected' && (
-						<div className="text-2xl">{error}</div>
+						<div className="text-2xl text-red-500">{error}</div>
 					)}
 					{status === 'fulfilled' &&
 						filteredTasks.map((task) => (
