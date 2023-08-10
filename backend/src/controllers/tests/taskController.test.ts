@@ -37,10 +37,10 @@ describe('/task', () => {
 			expect(body.error).toBe('Forbidden');
 		});
 
-		test('should return 400 if no token', async () => {
+		test('should return 401 if no token', async () => {
 			const { status, body } = await api.get('/api/v1/task');
 
-			expect(status).toBe(400);
+			expect(status).toBe(401);
 			expect(body.error).toBeDefined();
 			expect(body.error).toBe('No token was provided');
 		});
