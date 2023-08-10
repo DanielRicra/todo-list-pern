@@ -3,8 +3,8 @@ import { useState, useMemo } from 'react';
 import Eye from './icons/Eye';
 import EyeClosed from './icons/EyeClosed';
 import { useAppSelector } from '../app/hooks';
-import AddTaskForm from './AddTaskForm';
-import TaskCard from './TaskCard/TaskCard';
+import AddTaskForm from './add-task-form';
+import TaskCard from './task-card/TaskCard';
 
 export const TodoList = () => {
 	const [showCompleted, setShowCompleted] = useState(false);

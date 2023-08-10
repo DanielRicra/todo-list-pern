@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { TaskDTO } from '../../types';
-import TaskCardContent from './TaskCardContent';
+import TaskCardContent from './task-card-content';
 
 const TaskCard = ({ task }: { task: TaskDTO }) => {
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);

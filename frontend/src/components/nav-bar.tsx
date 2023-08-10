@@ -1,4 +1,4 @@
-import SearchTask from './SearchTask';
+import SearchTask from './search-task';
 
 const NavBar = () => {
 	return (

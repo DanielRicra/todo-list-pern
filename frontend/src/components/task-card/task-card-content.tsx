@@ -10,8 +10,8 @@ import {
 	convertTaskDTOToTask,
 	convertTaskToTaskDTO,
 } from '../../utils/taskUtils';
-import DropDownMenu from './DropDownMenu';
-import UpdateTaskModal from '../UpdateTaskModal';
+import DropDownMenu from './drop-down-menu';
+import UpdateTaskModal from '../update-task-modal';
 
 const TaskCardContent = forwardRef<HTMLDivElement, TaskCardProps>(
 	({ task, isDropdownOpen, toggleShowDropdown }, ref) => {
