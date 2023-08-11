@@ -1,31 +1,9 @@
-import { useEffect } from 'react';
+import { RouterProvider } from 'react-router-dom';
 
-import './App.css';
-import { useAppDispatch } from './app/hooks';
-import NavBar from './components/nav-bar';
-import SideBar from './components/side-bar';
-import TodoList from './components/todo-list';
-import { fetchTaskListsByUserId } from './features/task-list/taskListMiddleware';
+import { router } from './router';
 
 function App() {
-	const dispatch = useAppDispatch();
-
-	useEffect(() => {
-		dispatch(fetchTaskListsByUserId(1));
-	}, []);
-
-	return (
-		<>
-			<div className="min-h-screen w-[260px]">
-				<SideBar  />
-			</div>
-
-			<div className="min-h-screen flex-1">
-				<NavBar />
-				<TodoList />
-			</div>
-		</>
-	);
+	return <RouterProvider router={router} fallbackElement={<p>Loading...</p>} />;
 }
 
 export default App;
