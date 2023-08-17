@@ -2,7 +2,6 @@ import { NavLink, useNavigate, useParams } from 'react-router-dom';
 
 import AddTaskListForm from './add-task-list-form';
 import { useGetTaskListsByUserIdQuery } from '@/services/task-list';
-import { TaskList } from '@/types';
 import { useAppSelector } from '@/app/hooks';
 import { selectUser } from '@/features/user/userSlice';
 import { useEffect } from 'react';
@@ -17,8 +16,8 @@ const SideBar = () => {
 	const { data, isLoading, isError } = useGetTaskListsByUserIdQuery(userId);
 
 	useEffect(() => {
-		if (!taskListId && data?.length > 0) {
-			navigate(`/workspace/${data.at(0).taskListId}`);
+		if (!taskListId && data && data?.length > 0) {
+			navigate(`/workspace/${data.at(0)?.taskListId}`);
 		}
 	}, [data]);
 
@@ -37,7 +36,7 @@ const SideBar = () => {
 			) : isError ? (
 				<p className="py-2 px-4 text-red-500">Could fetch task lists.</p>
 			) : (
-				data?.map((taskList: TaskList) => (
+				data?.map((taskList) => (
 					<NavLink
 						to={`/workspace/${taskList.taskListId}`}
 						key={taskList.taskListId}
