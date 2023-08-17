@@ -55,6 +55,9 @@ export const getTaskListsByUserId = async (
 			where: {
 				userId: Number(userId),
 			},
+			include: {
+				tasks: true,
+			},
 		});
 		res.status(HTTP_STATUS.OK).json(taskLists);
 	} catch (error) {
