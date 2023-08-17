@@ -1,0 +1,1 @@
+export const STORAGE_STORE_KEY = '__storage__store__key__';
