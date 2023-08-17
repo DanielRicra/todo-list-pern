@@ -1,10 +1,11 @@
-import { NavLink, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect } from 'react';
 
 import AddTaskListForm from './add-task-list-form';
 import { useGetTaskListsByUserIdQuery } from '@/services/task-list';
 import { useAppSelector } from '@/app/hooks';
 import { selectUser } from '@/features/user/userSlice';
-import { useEffect } from 'react';
+import TaskListNavItem from './task-list-nav-item';
 
 const skeletons = [true, true, true];
 
@@ -22,30 +23,29 @@ const SideBar = () => {
 	}, [data]);
 
 	return (
-		<div className="bg-[#21212b] h-full flex flex-col">
-			<h2 className="mt-8 mb-5 text-2xl px-4 font-bold text-white">
-				TaskLists
-			</h2>
+		<div className="bg-[#21212b] h-full flex flex-col justify-between">
+			<div>
+				<h2 className="mt-8 mb-5 text-2xl px-4 font-bold text-white">
+					TaskLists
+				</h2>
 
-			{isLoading ? (
-				skeletons.map((_a, i) => (
-					<p className="py-2 px-4" key={i}>
-						<span className="h-9 w-full block rounded-md bg-gray-600 animate-pulse" />
-					</p>
-				))
-			) : isError ? (
-				<p className="py-2 px-4 text-red-500">Could fetch task lists.</p>
-			) : (
-				data?.map((taskList) => (
-					<NavLink
-						to={`/workspace/${taskList.taskListId}`}
-						key={taskList.taskListId}
-						className="py-2 px-4 hover:bg-[#333341] active:bg-[#333341]"
-					>
-						<p>{taskList.name}</p>
-					</NavLink>
-				))
-			)}
+				{isLoading ? (
+					skeletons.map((_a, i) => (
+						<p className="py-2 px-4" key={i}>
+							<span className="h-9 w-full block rounded-md bg-gray-600 animate-pulse" />
+						</p>
+					))
+				) : isError ? (
+					<p className="py-2 px-4 text-red-500">Could fetch task lists.</p>
+				) : (
+					data?.map((taskList) => (
+						<TaskListNavItem
+							key={taskList.taskListId}
+							taskList={taskList}
+						/>
+					))
+				)}
+			</div>
 
 			<div className="py-2 px-4">
 				<AddTaskListForm />
