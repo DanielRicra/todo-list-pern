@@ -1,15 +1,19 @@
 import { useRef } from 'react';
-import { TaskDTO } from '../types';
-import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { saveTask } from '../features/task/taskMiddleware';
+import { useParams } from 'react-router-dom';
+import { useAddTaskToTaskListMutation } from '@/services/task-list';
+import { useToast } from './ui/use-toast';
+import { cn } from '@/lib/utils';
 
 const AddTaskForm = () => {
-	const taskListId = useAppSelector((state) => state.tasks.value.taskListId);
+	const { taskListId } = useParams();
+	const { toast } = useToast();
+	const [addTask, { isLoading: isAddTaskLoading }] =
+		useAddTaskToTaskListMutation();
+
 	const errorRef = useRef<HTMLParagraphElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
-	const dispatch = useAppDispatch();
 
-	const addNewTask = (event: React.FormEvent<HTMLFormElement>) => {
+	const addNewTask = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		if (inputRef.current?.value.trim() === '') {
 			if (errorRef.current) {
@@ -24,13 +28,10 @@ const AddTaskForm = () => {
 			return;
 		}
 
-		const newTask: TaskDTO = {
+		const newTask = {
 			title: inputRef.current?.value.trim() || 'Add title',
-			createdAt: new Date().toISOString(),
-			taskListId: taskListId,
-			dueDate: null,
-			completedAt: null,
-			description: null,
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+			taskListId: Number(taskListId!),
 		};
 
 		if (errorRef.current) {
@@ -40,7 +41,16 @@ const AddTaskForm = () => {
 		if (inputRef.current) {
 			inputRef.current.value = '';
 		}
-		dispatch(saveTask(newTask));
+
+		try {
+			await addTask(newTask);
+		} catch (error) {
+			toast({
+				title: 'Error',
+				description: (error as Error).message,
+				variant: 'destructive',
+			});
+		}
 	};
 
 	return (
@@ -49,9 +59,13 @@ const AddTaskForm = () => {
 			className="rounded-2xl p-2 flex border border-[#3e3e4b] w-full mt-3 shadow-md relative mb-3"
 		>
 			<button
-				className="bg-[#F84C6F] text-sm p-1 rounded-lg active:border-[#f84cf0] active:bg-[#f84c63] active:text-white outline-none focus:outline-none"
+				className={cn(
+					'bg-[#F84C6F] text-sm p-1 rounded-lg active:border-[#f84cf0] active:bg-[#f84c63] active:text-white outline-none focus:outline-none',
+					isAddTaskLoading && 'animate-pulse'
+				)}
 				type="submit"
 				title="Add new task"
+				disabled={isAddTaskLoading}
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -75,6 +89,7 @@ const AddTaskForm = () => {
 				autoFocus
 				type="text"
 				ref={inputRef}
+				disabled={isAddTaskLoading}
 				className="flex-1 bg-transparent text-white px-2 outline-none border-none"
 			/>
 
