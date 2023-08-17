@@ -31,6 +31,8 @@ const AddTaskListForm = () => {
 	const onSubmit = async (values: FormData) => {
 		try {
 			await addTaskList({ name: values.name, userId }).unwrap();
+			
+			form.reset();
 		} catch (error) {
 			toast({
 				title: 'Error',
