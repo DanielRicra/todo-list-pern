@@ -79,7 +79,7 @@ describe('/auth', async () => {
 
 			const { status, body } = await api
 				.post('/api/v1/auth/token')
-				.send({ token: userTokens.refreshToken });
+				.set('Authorization', `Bearer ${userTokens.refreshToken as string}`);
 
 			expect(status).toBe(200);
 			expect(body).toStrictEqual({ accessToken: expect.any(String) });
@@ -89,16 +89,16 @@ describe('/auth', async () => {
 		test('should return a 404 on not found token', async () => {
 			const { status, body } = await api
 				.post('/api/v1/auth/token')
-				.send({ token: 'fakeToken' });
+				.set('Authorization', 'Bearer fakeToken');
 
 			expect(status).toBe(404);
 			expect(body.error).toBe('Refresh Token not found');
 		});
 
-		test('should return a 400 on missing token', async () => {
+		test('should return a 401 on missing token', async () => {
 			const { status, body } = await api.post('/api/v1/auth/token');
 
-			expect(status).toBe(400);
+			expect(status).toBe(401);
 			expect(body.error).toBe('Missing token');
 		});
 	});

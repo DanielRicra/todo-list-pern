@@ -132,10 +132,10 @@ export const revalidateAccessToken = async (
 	res: Response,
 	next: NextFunction
 ): Promise<void> => {
-	const token = req.body.token;
+	const token = req.headers.authorization?.split(' ')[1];
 
 	if (!token) {
-		res.status(HTTP_STATUS.BAD_REQUEST).json({ error: 'Missing token' });
+		res.status(HTTP_STATUS.UNAUTHORIZED).json({ error: 'Missing token' });
 		return;
 	}
 
