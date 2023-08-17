@@ -1,64 +1,52 @@
-import { useState, useEffect } from 'react';
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
 
-import { useAppDispatch, useAppSelector } from '../app/hooks';
 import AddTaskListForm from './add-task-list-form';
-import { fetchTasksByTaskListId } from '../features/task/taskMiddleware';
+import { useGetTaskListsByUserIdQuery } from '@/services/task-list';
+import { TaskList } from '@/types';
+import { useAppSelector } from '@/app/hooks';
+import { selectUser } from '@/features/user/userSlice';
+import { useEffect } from 'react';
 
 const skeletons = [true, true, true];
 
 const SideBar = () => {
-	const dispatch = useAppDispatch();
-	const {
-		status,
-		error,
-		value: taskLists,
-	} = useAppSelector((state) => state.taskList);
-	const [currentTaskListId, setCurrentTaskListId] = useState<number>(
-		taskLists[0]?.taskListId || 1
-	);
+	const navigate = useNavigate();
+	const { taskListId } = useParams();
+	const { userId } = useAppSelector(selectUser);
 
-	const handleSelectTaskList = (taskListId: number) => {
-		setCurrentTaskListId(taskListId);
-	};
+	const { data, isLoading, isError } = useGetTaskListsByUserIdQuery(userId);
 
 	useEffect(() => {
-		const promise = dispatch(fetchTasksByTaskListId(currentTaskListId));
-
-		return () => {
-			promise.abort();
-		};
-	}, [currentTaskListId]);
+		if (!taskListId && data?.length > 0) {
+			navigate(`/workspace/${data.at(0).taskListId}`);
+		}
+	}, [data]);
 
 	return (
 		<div className="bg-[#21212b] h-full flex flex-col">
 			<h2 className="mt-8 mb-5 text-2xl px-4 font-bold text-white">
 				TaskLists
 			</h2>
-			{status === 'pending' &&
+
+			{isLoading ? (
 				skeletons.map((_a, i) => (
 					<p className="py-2 px-4" key={i}>
 						<span className="h-9 w-full block rounded-md bg-gray-600 animate-pulse" />
 					</p>
-				))}
-			{status === 'rejected' && (
-				<p className="py-2 px-4 text-red-500">{error}</p>
-			)}
-			{status === 'fulfilled' &&
-				taskLists.map((taskList) => (
-					<div
+				))
+			) : isError ? (
+				<p className="py-2 px-4 text-red-500">Could fetch task lists.</p>
+			) : (
+				data?.map((taskList: TaskList) => (
+					<NavLink
+						to={`/workspace/${taskList.taskListId}`}
 						key={taskList.taskListId}
-						style={{
-							backgroundColor:
-								currentTaskListId === taskList.taskListId
-									? '#333341'
-									: '#21212b',
-						}}
-						className="py-2 px-4 hover:bg-[#333341]"
-						onClick={() => handleSelectTaskList(taskList.taskListId || 0)}
+						className="py-2 px-4 hover:bg-[#333341] active:bg-[#333341]"
 					>
-						<h3>{taskList.name}</h3>
-					</div>
-				))}
+						<p>{taskList.name}</p>
+					</NavLink>
+				))
+			)}
 
 			<div className="py-2 px-4">
 				<AddTaskListForm />
