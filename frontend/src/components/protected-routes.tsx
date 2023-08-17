@@ -1,5 +1,7 @@
 import { Outlet, Navigate, useNavigation } from 'react-router-dom';
 import LoadingPages from '@/components/loading-pages';
+import { useAppSelector } from '@/app/hooks';
+import { selectUser } from '@/features/user/userSlice';
 
 const Layout = () => {
 	const navigation = useNavigation();
@@ -9,9 +11,9 @@ const Layout = () => {
 };
 
 const ProtectedRoutes = () => {
-   const user = localStorage.getItem('user');
+   const user = useAppSelector(selectUser);
 
-   if (!user) {
+   if (!user.accessToken) {
       return <Navigate to="/login" />;
    }
 
