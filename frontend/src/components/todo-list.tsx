@@ -27,9 +27,9 @@ export const TodoList = () => {
 		setShowCompleted((prev) => !prev);
 	};
 
-	const completedTasksCount = taskList?.tasks.filter((t: TaskDTO) =>
+	const completedTasksCount = (taskList?.tasks.filter((t: TaskDTO) =>
 		Boolean(t.completedAt)
-	).length;
+	) ?? []).length;
 
 	return (
 		<div className="bg-[#181820] h-full p-4 flex place-content-center text-white">
@@ -60,7 +60,7 @@ export const TodoList = () => {
 						<div
 							className="h-full bg-[#AA28A3] rounded-md"
 							style={{
-								width: `${(completedTasksCount / taskList?.tasks.length) * 100}%`,
+								width: `${(completedTasksCount / (taskList?.tasks.length ?? 1)) * 100}%`,
 							}}
 						/>
 					</div>
