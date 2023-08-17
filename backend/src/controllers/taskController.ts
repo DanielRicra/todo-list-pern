@@ -44,25 +44,6 @@ export const getTaskById = async (
 	}
 };
 
-export const getTasksByTaskListId = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-): Promise<void> => {
-	try {
-		const { taskListId } = req.params;
-		const tasks = await prisma.task.findMany({
-			where: {
-				taskListId: Number(taskListId),
-			},
-		});
-
-		res.status(200).json(tasks);
-	} catch (error) {
-		next(error);
-	}
-};
-
 export const saveNewTask = async (
 	req: Request,
 	res: Response,
