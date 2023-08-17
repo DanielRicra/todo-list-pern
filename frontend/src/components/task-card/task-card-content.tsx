@@ -4,21 +4,24 @@ import formatDistance from 'date-fns/formatDistance';
 import CaretRight from '../icons/CaretRight';
 import Dots from '../icons/Dots';
 import { Task, TaskCardProps } from '../../types';
-import { useAppDispatch } from '../../app/hooks';
-import { updateTask } from '../../features/task/taskMiddleware';
 import {
 	convertTaskDTOToTask,
 	convertTaskToTaskDTO,
 } from '../../utils/taskUtils';
 import DropDownMenu from './drop-down-menu';
 import UpdateTaskModal from '../update-task-modal';
+import { useUpdateTaskFromTaskListMutation } from '@/services/task-list';
+import { useToast } from '../ui/use-toast';
 
 const TaskCardContent = forwardRef<HTMLDivElement, TaskCardProps>(
 	({ task, isDropdownOpen, toggleShowDropdown }, ref) => {
-		const dispatch = useAppDispatch();
 		const [taskForm, setTaskForm] = useState<Task>(
 			convertTaskDTOToTask(task)
 		);
+		const [updateTask, { isLoading: isUpdatingTask }] =
+			useUpdateTaskFromTaskListMutation();
+		const { toast } = useToast();
+
 		const modalRef = useRef<HTMLDialogElement>(null);
 
 		const openUpdateModal = () => {
@@ -29,14 +32,22 @@ const TaskCardContent = forwardRef<HTMLDivElement, TaskCardProps>(
 			modalRef.current?.close();
 		};
 
-		const handleCompletedToggle = (
+		const handleCompletedToggle = async (
 			e: React.ChangeEvent<HTMLInputElement>
 		) => {
 			const completedAt = e.target.checked ? new Date().toISOString() : null;
 
 			const updatedTask = { ...convertTaskToTaskDTO(taskForm), completedAt };
 
-			dispatch(updateTask(updatedTask));
+			try {
+				await updateTask(updatedTask).unwrap();
+			} catch (error) {
+				toast({
+					title: 'Error',
+					description: (error as Error).message,
+					variant: 'destructive',
+				});
+			}
 		};
 
 		useEffect(() => {
@@ -80,8 +91,9 @@ const TaskCardContent = forwardRef<HTMLDivElement, TaskCardProps>(
 								name="completed"
 								onChange={handleCompletedToggle}
 								checked={!!taskForm.completedAt}
+								disabled={isUpdatingTask}
 							/>
-							<span className="border-2 border-[#F84C6F] border-solid peer-checked/completed:text-white bg-transparent peer-checked/completed:bg-[#F84C6F] peer-checked/completed:bg-[url('src/assets/check.svg')] peer-checked/completed:bg-no-repeat peer-checked/completed:bg-center block rounded-lg -top-[2px] w-[22px] h-[22px] pointer-events-none transition-all duration-300 ease-in-out"></span>
+							<span className="border-2 border-[#F84C6F] border-solid peer-checked/completed:text-white bg-transparent peer-checked/completed:bg-[#F84C6F] peer-checked/completed:bg-[url('../src/assets/check.svg')] peer-checked/completed:bg-no-repeat peer-checked/completed:bg-center block rounded-lg -top-[2px] w-[22px] h-[22px] pointer-events-none transition-all duration-300 ease-in-out"></span>
 						</label>
 
 						<p className="flex-1">{taskForm.title}</p>
@@ -114,7 +126,8 @@ const TaskCardContent = forwardRef<HTMLDivElement, TaskCardProps>(
 
 					{taskForm.dueDate && (
 						<span className="ml-7">
-							Due in {formatDistance(new Date(taskForm.dueDate), new Date())}
+							Due in{' '}
+							{formatDistance(new Date(taskForm.dueDate), new Date())}
 						</span>
 					)}
 				</div>
