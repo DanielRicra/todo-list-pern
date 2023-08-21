@@ -3,8 +3,9 @@ import format from 'date-fns/format';
 
 import type { Task, TaskDTO } from '../types';
 import { convertTaskDTOToTask, convertTaskToTaskDTO } from '../utils/taskUtils';
-import { useAppDispatch } from '../app/hooks';
-import { updateTask } from '../features/task/taskMiddleware';
+import { Button } from './ui/button';
+import { useUpdateTaskFromTaskListMutation } from '@/services/task-list';
+import { useToast } from './ui/use-toast';
 
 type UpdateTaskModalProps = {
 	task: TaskDTO;
@@ -13,7 +14,9 @@ type UpdateTaskModalProps = {
 
 const UpdateTaskModal = ({ task, closeUpdateModal }: UpdateTaskModalProps) => {
 	const [taskForm, setTaskForm] = useState<Task>(convertTaskDTOToTask(task));
-	const dispatch = useAppDispatch();
+	const [updateTask, { isLoading: isUpdatingTask }] =
+		useUpdateTaskFromTaskListMutation();
+	const { toast } = useToast();
 
 	const handleInputChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -26,9 +29,21 @@ const UpdateTaskModal = ({ task, closeUpdateModal }: UpdateTaskModalProps) => {
 		}));
 	};
 
-	const handleUpdateTask = (event: React.MouseEvent) => {
+	const handleUpdateTask = async (event: React.MouseEvent) => {
 		event.preventDefault();
-		dispatch(updateTask(convertTaskToTaskDTO(taskForm)));
+		try {
+			await updateTask(convertTaskToTaskDTO(taskForm)).unwrap();
+			toast({
+				title: 'Task updated successfully',
+				duration: 3500,
+			});
+		} catch (error) {
+			toast({
+				title: 'Error',
+				description: (error as Error).message,
+				variant: 'destructive',
+			});
+		}
 
 		closeUpdateModal();
 	};
@@ -47,7 +62,7 @@ const UpdateTaskModal = ({ task, closeUpdateModal }: UpdateTaskModalProps) => {
 	}, [task]);
 
 	return (
-		<div className="w-[500px] rounded-2xl bg-[#21212b] p-2">
+		<div className="w-[500px] rounded-2xl bg-[#21212b] p-2 dark:text-white">
 			<form className="p-5 rounded-2xl bg-[#21212b] gap-3 flex flex-col">
 				<div className="flex flex-col">
 					<label
@@ -94,7 +109,11 @@ const UpdateTaskModal = ({ task, closeUpdateModal }: UpdateTaskModalProps) => {
 						type="date"
 						name="dueDate"
 						id={`dueDate-${task.taskId}`}
-						value={taskForm.dueDate ? format(taskForm.dueDate, 'yyyy-MM-dd') : ''}
+						value={
+							taskForm.dueDate
+								? format(taskForm.dueDate, 'yyyy-MM-dd')
+								: ''
+						}
 						placeholder="Due Date"
 						className="flex-1 bg-transparent outline-none border border-[#3e3e4b] p-2 rounded-xl"
 						onChange={handleDateChange}
@@ -102,20 +121,24 @@ const UpdateTaskModal = ({ task, closeUpdateModal }: UpdateTaskModalProps) => {
 				</div>
 
 				<div className="flex justify-between">
-					<button
+					<Button
 						type="submit"
+						variant="outline"
+						disabled={isUpdatingTask}
 						onClick={(e) => handleUpdateTask(e)}
-						className="hover:bg-[#D63691] border-[#B32C6C] hover:outline-none hover:border-transparent transition-colors duration-300"
+						className="hover:bg-[#D63691] border-[#B32C6C]"
 					>
 						Update
-					</button>
-					<button
+					</Button>
+					<Button
 						type="button"
+						variant="destructive"
 						onClick={closeUpdateModal}
-						className="bg-[#cc1111] border-transparent hover:border-transparent hover:brightness-125 transition-colors duration-300"
+						className="bg-[#cc1111]"
+						disabled={isUpdatingTask}
 					>
 						Cancel
-					</button>
+					</Button>
 				</div>
 			</form>
 		</div>
